@@ -46,7 +46,8 @@ class ComputeThread(QThread):
 
     def __init__(self, data: pd.DataFrame, column_name: str):
         super().__init__()
-        self.data = data
+        # Create copy for thread safety
+        self.data = data.copy()
         self.column_name = column_name
 
     def run(self):
@@ -169,6 +170,13 @@ class BasicSimilarityTab(QWidget):
         if file_name:
             try:
                 self.data = pd.read_csv(file_name)
+
+                # Check if file is empty
+                if self.data.empty:
+                    QMessageBox.warning(self, "Warning", "The selected file is empty.")
+                    self.data = None
+                    return
+
                 self.file_label.setText(os.path.basename(file_name))
 
                 # Populate column combo
@@ -182,6 +190,10 @@ class BasicSimilarityTab(QWidget):
             except Exception as e:
                 logger.error(f"Error loading file: {str(e)}")
                 QMessageBox.critical(self, "Error", f"Error loading file: {str(e)}")
+                # Reset state on error
+                self.data = None
+                self.column_combo.setEnabled(False)
+                self.analyze_btn.setEnabled(False)
 
     def analyze(self):
         """Run similarity analysis."""

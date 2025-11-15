@@ -2,18 +2,24 @@
 Setup script for creating macOS .app bundle
 Usage: python setup.py py2app
 """
+import os
 from setuptools import setup
 
 APP = ['keyword_analyzer_mac.py']
 DATA_FILES = [
     ('.', ['.env.example']),
 ]
+
+# Check if icon file exists
+iconfile_path = 'assets/icon.icns'
+iconfile_exists = os.path.exists(iconfile_path)
+
 OPTIONS = {
     'argv_emulation': False,
     'packages': [
         'pandas',
         'numpy',
-        'sklearn',
+        'scikit-learn',  # Fixed: was 'sklearn'
         'matplotlib',
         'seaborn',
         'PyQt6',
@@ -37,8 +43,11 @@ OPTIONS = {
         'NSHumanReadableCopyright': '© 2024',
         'NSHighResolutionCapable': True,
     },
-    'iconfile': 'assets/icon.icns',  # Add your icon file here
 }
+
+# Only add icon if it exists
+if iconfile_exists:
+    OPTIONS['iconfile'] = iconfile_path
 
 setup(
     name='Keyword Similarity Analyzer',

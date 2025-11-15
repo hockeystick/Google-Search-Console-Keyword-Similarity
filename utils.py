@@ -2,12 +2,14 @@
 Shared utility functions for keyword similarity analysis.
 """
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 logger = logging.getLogger(__name__)
+
+__all__ = ['calculate_cosine_similarity', 'validate_dataframe', 'get_top_keyword_pairs']
 
 
 def calculate_cosine_similarity(
@@ -15,7 +17,8 @@ def calculate_cosine_similarity(
     column_name: str,
     min_df: int = 1,
     max_df: float = 1.0,
-    ngram_range: tuple = (1, 2)
+    ngram_range: tuple = (1, 2),
+    stop_words: Optional[str] = 'english'
 ) -> pd.DataFrame:
     """
     Compute TF-IDF vectors and cosine similarity.
@@ -26,6 +29,7 @@ def calculate_cosine_similarity(
         min_df: Minimum document frequency
         max_df: Maximum document frequency (proportion)
         ngram_range: Range of n-grams to consider (default: unigrams and bigrams)
+        stop_words: Language for stop words ('english', 'spanish', etc.) or None to disable
 
     Returns:
         DataFrame with cosine similarity matrix
@@ -33,12 +37,17 @@ def calculate_cosine_similarity(
     Raises:
         ValueError: If data is invalid or column doesn't exist
     """
+    from config import config
+
     # Validate input
     if data is None or data.empty:
         raise ValueError("Data cannot be None or empty")
 
     if column_name not in data.columns:
         raise ValueError(f"Column '{column_name}' not found in data. Available columns: {list(data.columns)}")
+
+    # Create explicit copy to avoid mutation
+    data = data.copy()
 
     # Check for null values
     if data[column_name].isnull().any():
@@ -55,6 +64,13 @@ def calculate_cosine_similarity(
     if unique_count < 2:
         raise ValueError(f"Need at least 2 unique keywords for analysis. Found: {unique_count}")
 
+    # Check maximum data requirement (prevent memory issues)
+    if len(data) > config.MAX_KEYWORDS:
+        raise ValueError(
+            f"Too many keywords ({len(data)}). Maximum allowed: {config.MAX_KEYWORDS}. "
+            f"Please reduce your dataset size."
+        )
+
     logger.info(f"Processing {len(data)} unique keywords for similarity analysis")
 
     try:
@@ -63,7 +79,7 @@ def calculate_cosine_similarity(
             min_df=min_df,
             max_df=max_df,
             ngram_range=ngram_range,
-            stop_words='english'
+            stop_words=stop_words
         )
         tfidf_matrix = tfidf_vectorizer.fit_transform(data[column_name])
 
@@ -85,7 +101,7 @@ def calculate_cosine_similarity(
         raise
 
 
-def validate_dataframe(data: pd.DataFrame, column_name: str) -> tuple[bool, Optional[str]]:
+def validate_dataframe(data: pd.DataFrame, column_name: str) -> Tuple[bool, Optional[str]]:
     """
     Validate DataFrame for keyword analysis.
 

@@ -121,7 +121,8 @@ def get_ai_recommendations(
                 {"role": "user", "content": prompt}
             ],
             temperature=config.OPENAI_TEMPERATURE,
-            max_tokens=config.OPENAI_MAX_TOKENS
+            max_tokens=config.OPENAI_MAX_TOKENS,
+            timeout=30.0  # 30 second timeout
         )
 
         response_text = response.choices[0].message.content
@@ -133,6 +134,24 @@ def get_ai_recommendations(
             response_text = response_text.split("```")[1].split("```")[0]
 
         result = json.loads(response_text)
+
+        # Validate JSON structure
+        if not isinstance(result, dict):
+            raise ValueError("Expected JSON object, got " + str(type(result)))
+
+        # Ensure required keys exist (with defaults if missing)
+        if 'clusters' not in result:
+            logger.warning("Missing 'clusters' key in API response, using empty list")
+            result['clusters'] = []
+
+        if 'overall_strategy' not in result:
+            logger.warning("Missing 'overall_strategy' key in API response")
+            result['overall_strategy'] = "No overall strategy provided."
+
+        if 'linking_recommendations' not in result:
+            logger.warning("Missing 'linking_recommendations' key in API response")
+            result['linking_recommendations'] = "No linking recommendations provided."
+
         logger.info("Successfully received AI recommendations")
         return result
 
@@ -319,7 +338,10 @@ def main():
                             plt.xticks(rotation=45, ha="right")
                             plt.yticks(rotation=0)
                             plt.tight_layout()
-                            st.pyplot(fig)
+                            try:
+                                st.pyplot(fig)
+                            finally:
+                                plt.close(fig)  # Prevent memory leak
 
                         with tab2:
                             st.subheader("Keyword Clusters")
