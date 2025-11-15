@@ -23,28 +23,54 @@ cd news-keyword-analyzer
 pip install -r requirements.txt
 ```
 
-3. Set up your OpenAI API key. You can get one from [OpenAI's platform](https://platform.openai.com/).
+3. (Optional) Set up your OpenAI API key for AI recommendations:
+   - Get one from [OpenAI's platform](https://platform.openai.com/api-keys)
+   - Copy `.env.example` to `.env` and add your key:
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your API key
+   ```
 
 ## Usage
 
-1. Start the application:
+This repository contains three applications for different use cases:
+
+### Option 1: Basic Keyword Similarity Analysis
+For simple keyword similarity analysis without AI features:
 ```bash
-streamlit run news_analyzer.py
+streamlit run proximity.py
 ```
 
-2. Enter your OpenAI API key in the sidebar
+### Option 2: Advanced Analysis with AI Recommendations (Recommended)
+For comprehensive analysis with AI-powered content recommendations:
+```bash
+streamlit run Complete.py
+```
 
-3. Upload a CSV file containing keywords
+**Note:** Requires an OpenAI API key. You can either:
+- Enter it in the sidebar when running the app, or
+- Set it as an environment variable: `export OPENAI_API_KEY='your-key-here'`, or
+- Create a `.env` file (see `.env.example`)
+
+### Option 3: Visualize Pre-computed Similarity Matrix
+For visualizing an existing similarity matrix CSV:
+```bash
+streamlit run proximity_visualizer.py
+```
+
+## Workflow
+
+1. Upload a CSV file containing keywords
    - File should have a column containing keywords
    - Each row should represent a unique keyword or phrase
 
-4. Select the column containing your keywords
+2. Select the column containing your keywords
 
-5. Click "Analyze Keywords" to generate:
+3. Click "Analyze Keywords" (or "Calculate Similarity") to generate:
    - Proximity matrix
    - Visualization heatmap
    - Keyword clusters
-   - AI-powered content recommendations
+   - AI-powered content recommendations (Complete.py only)
 
 ## Input Format
 
@@ -88,8 +114,14 @@ For each cluster, the tool provides:
 - seaborn
 - matplotlib
 - openai
+- python-dotenv
 
 See `requirements.txt` for specific versions.
+
+For development (testing, linting, etc.):
+```bash
+pip install -r requirements-dev.txt
+```
 
 ## Configuration
 
@@ -113,6 +145,27 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Uses scikit-learn for TF-IDF vectorization
 - Visualization powered by seaborn and matplotlib
 
+## Code Structure
+
+- `Complete.py` - Full-featured app with AI recommendations
+- `proximity.py` - Basic keyword similarity analyzer
+- `proximity_visualizer.py` - Visualizer for pre-computed matrices
+- `utils.py` - Shared utility functions
+- `config.py` - Configuration settings
+- `tests/` - Unit tests
+
+## Testing
+
+Run tests using pytest:
+```bash
+pytest tests/
+```
+
+Run with coverage:
+```bash
+pytest --cov=. tests/
+```
+
 ## Future Enhancements
 
 - Multiple language support
@@ -120,6 +173,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Trend detection
 - Additional visualization options
 - Enhanced export capabilities
+- Consolidated single-app interface with navigation
 
 ## Need Help?
 
