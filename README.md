@@ -1,6 +1,17 @@
-# News Keyword Proximity Analyzer 📰
+# Keyword Proximity Analyzer 📰
 
-A powerful tool that combines data analysis and AI to help journalists analyze keyword relationships and generate content recommendations. This tool uses TF-IDF vectorization for keyword proximity analysis and OpenAI's GPT-4 for generating strategic content recommendations.
+A powerful tool that combines data analysis and AI to help analyze keyword relationships and generate content recommendations. This tool uses TF-IDF vectorization for keyword proximity analysis and OpenAI's GPT-4 for generating strategic content recommendations.
+
+## 🖥️ Available Versions
+
+This project is available in two versions:
+
+1. **Web Version (Streamlit)** - Browser-based interface, great for collaboration and easy deployment
+2. **macOS Native App** - Native macOS application with PyQt6, better performance and offline support
+
+👉 **For macOS users:** See [README-MACOS.md](README-MACOS.md) for the native app version
+
+This README covers the **web version**. Continue reading for Streamlit setup instructions.
 
 ## Features
 
